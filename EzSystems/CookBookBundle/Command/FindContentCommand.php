@@ -8,12 +8,17 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * This command performs a simple full text search
+ *
+ * @author christianbacher
+ */
 class FindContentCommand extends ContainerAwareCommand
 {
     /**
@@ -22,9 +27,9 @@ class FindContentCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName( 'ezp_cookbook:find' )->setDefinition(
-                array(
-                        new InputArgument( 'text', InputArgument::REQUIRED, 'text to search' )
-                )
+            array(
+                new InputArgument( 'text', InputArgument::REQUIRED, 'text to search' )
+            )
         );
     }
 
@@ -35,32 +40,24 @@ class FindContentCommand extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch the input argument
+        // fetch the input arguments
         $text = $input->getArgument( 'text' );
 
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the search service
+        // get the services from repository
         $searchService = $repository->getSearchService();
 
-        // create a new query object
+        // create and execute the query and print out the result
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
+        $query->criterion = new \eZ\Publish\API\Repository\Values\Content\Query\Criterion\FullText( $text );
 
-        // add a fulltext criterion
-        $query->criterion = new \eZ\Publish\API\Repository\Values\Content\Query\Criterion\FullText($text);
-
-        // call findContent
-        $result = $searchService->findContent($query);
-
-        // print the total count of the search hits
-        $output->writeln('Found ' . $result->totalCount . ' items');
-
-        // iterate over the search hits
+        $result = $searchService->findContent( $query );
+        $output->writeln( 'Found ' . $result->totalCount . ' items' );
         foreach( $result->searchHits as $searchHit )
         {
-            // print out the content name
-            $output->writeln($searchHit->valueObject->contentInfo->name);
+            $output->writeln( $searchHit->valueObject->contentInfo->name );
         }
     }
 }

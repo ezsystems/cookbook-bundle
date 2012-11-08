@@ -8,12 +8,17 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * This command adds a relation from a content source to a content destination.
+ *
+ * @author christianbacher
+ */
 class AddRelationCommand extends ContainerAwareCommand
 {
     /**
@@ -22,74 +27,54 @@ class AddRelationCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName( 'ezp_cookbook:addrelation' )->setDefinition(
-                array(
-                        new InputArgument( 'srcContentId' , InputArgument::REQUIRED, 'the source content'),
-                        new InputArgument( 'destContentId' , InputArgument::REQUIRED, 'the destination content'),
-                )
+            array(
+                new InputArgument( 'srcContentId' , InputArgument::REQUIRED, 'the source content'),
+                new InputArgument( 'destContentId' , InputArgument::REQUIRED, 'the destination content'),
+            )
         );
     }
 
     /**
      * execute the command
+     *
      * @param InputInterface $input
      * @param OutputInterface $output
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch the location argument
+        // fetch the input arguments
         $srcContentId = $input->getArgument( 'srcContentId' );
-
-        // fetch the title argument
         $destContentId = $input->getArgument( 'destContentId' );
 
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the content service from the repsitory
+        // get the services from the repsitory
         $contentService = $repository->getContentService();
-
-        // get the user service from the repsitory
         $userService = $repository->getUserService();
 
-        // load admin user
-        $user = $userService->loadUser(14);
-
-        // set current user to admin
-        $repository->setCurrentUser($user);
+        // load the admin user and set it has current user in the repository
+        $user = $userService->loadUser( 14 );
+        $repository->setCurrentUser( $user );
 
         try
         {
-            // load the src content info for the given id
-            $srcContentInfo = $contentService->loadContentInfo($srcContentId);
+            // for the given content ids load the corresponding content infos
+            $srcContentInfo = $contentService->loadContentInfo( $srcContentId );
+            $destContentInfo = $contentService->loadContentInfo( $destContentId );
 
-            // load the content info for the given destination for the relation
-            $destContentInfo = $contentService->loadContentInfo($destContentId);
+            // create a draft from the current published version of the source and
+            // add a relation to the draft. Then publihh the draft.
+            $contentDraft = $contentService->createContentDraft( $srcContentInfo );
+            $contentService->addRelation( $contentDraft->versionInfo, $destContentInfo );
+            $content = $contentService->publishVersion( $contentDraft->versionInfo );
 
-            // create a draft from the current published version
-            $contentDraft = $contentService->createContentDraft($srcContentInfo);
-
-            // add a relation to the draft
-            $contentService->addRelation($contentDraft->versionInfo, $destContentInfo);
-
-            // publish draft
-            $content = $contentService->publishVersion($contentDraft->versionInfo);
-
-            print_r($content);
+            print_r( $content ); // prints out the resulting content
         }
-        catch(\eZ\Publish\API\Repository\Exceptions\NotFoundException $e)
+        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on content type not found
-            $output->writeln($e->getMessage());
-        }
-        catch(\eZ\Publish\API\Repository\Exceptions\ContentFieldValidationException $e)
-        {
-            // react on a field is not valid
-            $output->writeln($e->getMessage());
-        }
-        catch(\eZ\Publish\API\Repository\Exceptions\ContentValidationException $e)
-        {
-            // react on a required field is missing or empty
-            $output->writeln($e->getMessage());
+            // react on content not found
+            $output->writeln( $e->getMessage() );
         }
     }
 }

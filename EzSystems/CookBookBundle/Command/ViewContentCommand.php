@@ -8,12 +8,19 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * With this command content can be viewd.
+ * For a given content id there is an iteration over the field definitions
+ * and the field values are shown.
+ *
+ * @author christianbacher
+ */
 class ViewContentCommand extends ContainerAwareCommand
 {
     /**
@@ -41,36 +48,25 @@ class ViewContentCommand extends ContainerAwareCommand
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the content service from the repsitory
+        // get the services from the repsitory
         $contentService = $repository->getContentService();
-
-        // get the field type service
         $fieldTypeService = $repository->getFieldTypeService();
 
         try
         {
-            // load the content including all fields
-            $content = $contentService->loadContent($contentId);
-
-            // load the content type
+            // iterate over the field definitions of the content type and print out the identifier and value
+            $content = $contentService->loadContent( $contentId );
             $contentType = $content->contentType;
-
-            // iterate over field definitions
-            foreach($contentType->fieldDefinitions as $fieldDefinition )
+            foreach( $contentType->fieldDefinitions as $fieldDefinition )
             {
-                // ignore ezpage
-                if($fieldDefinition->fieldTypeIdentifier == 'ezpage') continue;
+                if( $fieldDefinition->fieldTypeIdentifier == 'ezpage' ) continue; // ignore ezpage
+                $output->write( $fieldDefinition->identifier . ": " );
 
-                // get the field type
-                $fieldType = $fieldTypeService->getFieldType($fieldDefinition->fieldTypeIdentifier);
-
-                // write field definition identifier
-                $output->write($fieldDefinition->identifier . ": ");
-
-                // use the field type toHash function to get a readable representation of the value
-                $output->writeln($fieldType->toHash($content->getField($fieldDefinition->identifier)->value));
+                $fieldType = $fieldTypeService->getFieldType( $fieldDefinition->fieldTypeIdentifier );
+                $field = $content->getField( $fieldDefinition->identifier );
+                $valueHash = $fieldType->toHash( $field->value ); // use toHash for getting a readable output
+                $output->writeln( $valueHash );
             }
-
         }
         catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
@@ -84,5 +80,3 @@ class ViewContentCommand extends ContainerAwareCommand
         }
     }
 }
-
-

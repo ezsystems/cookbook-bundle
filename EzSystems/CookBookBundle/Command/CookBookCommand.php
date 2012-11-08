@@ -8,11 +8,11 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
 class CookBookCommand extends ContainerAwareCommand
 {
@@ -51,12 +51,12 @@ class CookBookCommand extends ContainerAwareCommand
         }
         catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // if the id is not found
+            // react on content not found
             $output->writeln( "No content with id $contentId" );
         }
         catch( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
         {
-            // not allowed to read this content
+            // react on permission denied
             $output->writeln( "Anonymous users are not allowed to read content with id $contentId" );
         }
     }

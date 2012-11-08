@@ -8,12 +8,18 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * This command assigns a content to a section.
+ *
+ * @author christianbacher
+ *
+ */
 class AssignContentToSectionCommand extends ContainerAwareCommand
 {
     /**
@@ -22,10 +28,10 @@ class AssignContentToSectionCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName( 'ezp_cookbook:assignsection' )->setDefinition(
-                array(
-                        new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' ),
-                        new InputArgument( 'sectionId', InputArgument::REQUIRED, 'An existing section id' ),
-                )
+            array(
+                new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' ),
+                new InputArgument( 'sectionId', InputArgument::REQUIRED, 'An existing section id' ),
+            )
         );
     }
 
@@ -36,55 +42,42 @@ class AssignContentToSectionCommand extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch the location argument
+        // fetch the the input arguments
         $sectionId = $input->getArgument( 'sectionId' );
-
-        // fetch the location argument
         $contentId = $input->getArgument( 'contentId' );
 
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the content service from the repsitory
+        // get the services from the repsitory
         $contentService = $repository->getContentService();
-
-        // get the section service from the repsitory
         $sectionService = $repository->getSectionService();
-
-        // get the user service from the repsitory
         $userService = $repository->getUserService();
 
-        // load admin user
-        $user = $userService->loadUser(14);
-
-        // set current user to admin
-        $repository->setCurrentUser($user);
-
+        // load the admin user and set it has current user in the repository
+        $user = $userService->loadUser( 14 );
+        $repository->setCurrentUser( $user );
 
         try
         {
-            // load the content info from the given content id
-            $contentInfo = $contentService->loadContentInfo($contentId);
+            // load the value objects and assign the content to the section
+            $contentInfo = $contentService->loadContentInfo( $contentId );
+            $section = $sectionService->loadSection( $sectionId );
+            $sectionService->assignSection( $contentInfo, $section );
 
-            // load the section
-            $section = $sectionService->loadSection($sectionId);
-
-            // assign the section to the content
-            $sectionService->assignSection($contentInfo, $section);
-
-            // realod an print out
-            $contentInfo =  $contentService->loadContentInfo($contentId);
-            $output->writeln($contentInfo->sectionId);
+            // reaload the content info and print out
+            $contentInfo =  $contentService->loadContentInfo( $contentId );
+            $output->writeln( $contentInfo->sectionId );
         }
-        catch(\eZ\Publish\API\Repository\Exceptions\NotFoundException $e)
+        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
             // react on content or section not found
-            $output->writeln($e->getMessage());
+            $output->writeln( $e->getMessage() );
         }
-        catch(\eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e)
+        catch( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
         {
             // react on permission denied
-            $output->writeln($e->getMessage());
+            $output->writeln( $e->getMessage() );
         }
 
     }

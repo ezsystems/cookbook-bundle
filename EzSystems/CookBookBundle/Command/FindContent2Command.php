@@ -8,13 +8,21 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use \eZ\Publish\API\Repository\Values\Content\Query\Criterion\Operator;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption,
+    eZ\Publish\API\Repository\Values\Content\Query\Criterion\Operator,
+    eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 
+
+/**
+ * This command performs combined full text, subtree and content type search
+ *
+ * @author christianbacher
+ *
+ */
 class FindContent2Command extends ContainerAwareCommand
 {
     /**
@@ -23,11 +31,11 @@ class FindContent2Command extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName( 'ezp_cookbook:find2' )->setDefinition(
-                array(
-                        new InputArgument( 'text', InputArgument::REQUIRED, 'text to search in title field' ),
-                        new InputArgument( 'contentTypeId', InputArgument::REQUIRED, 'content type id' ),
-                        new InputArgument( 'locationId', InputArgument::REQUIRED, 'location id' ),
-                )
+            array(
+                new InputArgument( 'text', InputArgument::REQUIRED, 'text to search in title field' ),
+                new InputArgument( 'contentTypeId', InputArgument::REQUIRED, 'content type id' ),
+                new InputArgument( 'locationId', InputArgument::REQUIRED, 'location id' ),
+            )
         );
     }
 
@@ -38,61 +46,34 @@ class FindContent2Command extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        //fetch the input argument
+        //fetch the input arguments
         $text = $input->getArgument( 'text' );
-
-        // fetch the input argument
         $contentTypeId = $input->getArgument( 'contentTypeId' );
-
-        // fetch the input argument
         $locationId = $input->getArgument( 'locationId' );
 
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the user service from the repsitory
-        $userService = $repository->getUserService();
-
-        // load admin user
-        $user = $userService->loadUser(14);
-
-        // set current user to admin
-        $repository->setCurrentUser($user);
-
-        // get the search service
+        // get the services from the repsitory
         $searchService = $repository->getSearchService();
-
         $locationService = $repository->getLocationService();
 
-        $location = $locationService->loadLocation($locationId);
-
-        // create a new query object
+        // create the query with three critions and print out the result
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
+        $criterion1 = new Criterion\FullText( $text );
+        $location = $locationService->loadLocation( $locationId );
+        $criterion2 = new Criterion\Subtree( $location->pathString ); // restrict results to belong to the given subtree
+        $criterion3 = new Criterion\ContentTypeId( $contentTypeId ); // restrict to the given content type
 
-        // create a full text criterion
-        $criterion1 = new \eZ\Publish\API\Repository\Values\Content\Query\Criterion\FullText($text);
+        $query->criterion = new Criterion\LogicalAND(
+                array( $criterion1, $criterion2, $criterion3 )
+        );
 
-        // create a subtree criterion (restrict results to belong to the subtree)
-        $criterion2 = new \eZ\Publish\API\Repository\Values\Content\Query\Criterion\Subtree($location->pathString);
-
-        // create a content type criterion (restrict to the given content type)
-        $criterion3 = new \eZ\Publish\API\Repository\Values\Content\Query\Criterion\ContentTypeId($contentTypeId);
-
-        // make a logical AND of the two criteria
-        $query->criterion = new \eZ\Publish\API\Repository\Values\Content\Query\Criterion\LogicalAND(
-                array($criterion1,$criterion2,$criterion3));
-
-        // call findContent
-        $result = $searchService->findContent($query);
-
-        // print the total count of the search hits
-        $output->writeln('Found ' . $result->totalCount . ' items');
-
-        // iterate over the search hits
+        $result = $searchService->findContent( $query );
+        $output->writeln( 'Found ' . $result->totalCount . ' items' );
         foreach( $result->searchHits as $searchHit )
         {
-            // print out the content name
-            $output->writeln($searchHit->valueObject->contentInfo->name);
+            $output->writeln( $searchHit->valueObject->contentInfo->name );
         }
     }
 }

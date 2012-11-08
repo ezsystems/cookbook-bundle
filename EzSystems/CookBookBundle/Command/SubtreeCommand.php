@@ -8,12 +8,18 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * With this command a subtree can be copied or moved to another location
+ *
+ * @author christianbacher
+ *
+ */
 class SubtreeCommand extends ContainerAwareCommand
 {
     /**
@@ -22,11 +28,11 @@ class SubtreeCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName( 'ezp_cookbook:subtree' )->setDefinition(
-                array(
-                        new InputArgument( 'operation', InputArgument::REQUIRED, 'copy or move' ),
-                        new InputArgument( 'locationId', InputArgument::REQUIRED, 'An existing location id' ),
-                        new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),
-                )
+            array(
+                new InputArgument( 'operation', InputArgument::REQUIRED, 'copy or move' ),
+                new InputArgument( 'srcLocationId', InputArgument::REQUIRED, 'An existing location id' ),
+                new InputArgument( 'destinationParentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),
+            )
         );
     }
 
@@ -37,49 +43,37 @@ class SubtreeCommand extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch operation (copy or move)
-        $operation = $input->getArgument('operation');
-
-        // fetch the location argument
-        $parentLocationId = $input->getArgument( 'parentLocationId' );
-
-        // fetch the location argument
-        $locationId = $input->getArgument( 'locationId' );
+        // fetch arguments
+        $operation = $input->getArgument( 'operation' ); // copy or move
+        $destinationParentLocationId = $input->getArgument( 'destinationParentLocationId' );
+        $srcLocationId = $input->getArgument( 'srcLocationId' );
 
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the content service from the repsitory
+        // get the services from the repsitory
         $contentService = $repository->getContentService();
-
-        // get the location service from the repsitory
         $locationService = $repository->getLocationService();
-
-        // get the user service from the repsitory
         $userService = $repository->getUserService();
 
-        // load admin user
-        $user = $userService->loadUser(14);
-
-        // set current user to admin
-        $repository->setCurrentUser($user);
-
+        // load the admin user and set it has current user in the repository
+        $user = $userService->loadUser( 14 );
+        $repository->setCurrentUser( $user );
 
         try
         {
-            // load the location from the given location id
-            $location = $locationService->loadLocation($locationId);
+            // copy or move the src location to the destination location
 
-            // load the parent location to move/copy to
-            $parentLocation = $locationService->loadLocation($parentLocationId);
+            $srcLocation = $locationService->loadLocation( $srcLocationId );
+            $destinationParentLocation = $locationService->loadLocation( $destinationParentLocationId );
 
-            if($operation == 'copy')
+            if( $operation == 'copy' )
             {
-                $newLocation = $locationService->copySubtree($location, $parentLocation);
+                $newLocation = $locationService->copySubtree( $srcLocation, $destinationParentLocation );
             }
-            else if($operation == 'move')
+            else if( $operation == 'move' )
             {
-                $newLocation = $locationService->moveSubtree($location, $parentLocation);
+                $newLocation = $locationService->moveSubtree( $srcLocation, $destinationParentLocation );
             }
             else
             {
@@ -87,17 +81,17 @@ class SubtreeCommand extends ContainerAwareCommand
                 return;
             }
 
-            print_r($newLocation);
+            print_r( $newLocation );
         }
-        catch(\eZ\Publish\API\Repository\Exceptions\NotFoundException $e)
+        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on content or location not found
-            $output->writeln($e->getMessage());
+            // react on location not found
+            $output->writeln( $e->getMessage() );
         }
-        catch(\eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e)
+        catch( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
         {
             // react on permission denied
-            $output->writeln($e->getMessage());
+            $output->writeln( $e->getMessage() );
         }
 
     }

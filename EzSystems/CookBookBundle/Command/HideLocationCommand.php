@@ -8,13 +8,18 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use eZ\Publish\API\Repository\Exceptions\NotFoundException;
-use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * This command demonstrates how to hide and unhide a location (subtree)
+ *
+ * @author christianbacher
+ *
+ */
 class HideLocationCommand extends ContainerAwareCommand
 {
     /**
@@ -43,45 +48,30 @@ class HideLocationCommand extends ContainerAwareCommand
         // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        // get the location service from the repsitory
+        // get the services from the repsitory
         $locationService = $repository->getLocationService();
-
-        // get the user service from the repsitory
         $userService = $repository->getUserService();
 
-        // load admin user
-        $user = $userService->loadUser(14);
-
-        // set current user to admin
-        $repository->setCurrentUser($user);
+        // load the admin user and set it has current user in the repository
+        $user = $userService->loadUser( 14 );
+        $repository->setCurrentUser( $user );
 
         try
         {
-            // load the location info from the given location id
+            // hide the location and print out
             $location = $contentService->loadContentInfo( $contentId );
-
-            // hide the location
             $hiddenLocation = $locationService->hideLocation( $location );
-
-            // print out the location
             print_r( $hiddenLocation );
 
-            // unhide the location
+            // unhide the now hidden location and print out
             $unhiddenLocation = $locationService->unhideLocation( $hiddenLocation );
-
-            // print out the location
             print_r( $unhiddenLocation );
 
         }
-        catch ( NotFoundException $e )
+        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on content or location not found
-            $output->writeln( $e->getMessage() );
-        }
-        catch ( UnauthorizedException $e )
-        {
-            // react on permission denied
-            $output->writeln( $e->getMessage() );
+            // react on location not found
+            $output->writeln( "No location with id $locationId" );
         }
     }
 }

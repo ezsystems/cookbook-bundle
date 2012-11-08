@@ -8,13 +8,17 @@
  */
 namespace EzSystems\CookBookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use eZ\Publish\API\Repository\Exceptions\UnauthorizedException;
-use eZ\Publish\API\Repository\Exceptions\ForbiddenException;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
+    Symfony\Component\Console\Input\InputInterface,
+    Symfony\Component\Console\Output\OutputInterface,
+    Symfony\Component\Console\Input\InputArgument,
+    Symfony\Component\Console\Input\InputOption;
 
+/**
+ * With this command a content type group can be created
+ *
+ * @author christianbacher
+ */
 class CreateContentTypeGroupCommand extends ContainerAwareCommand
 {
 
@@ -38,20 +42,27 @@ class CreateContentTypeGroupCommand extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
+
+        // fetch command line arguments
+        $contentTypeGroupIdentifier = $input->getArgument( 'content_type_group_identifier' );
+
+        // get the repository from the di container
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
 
-        $repository->setCurrentUser(
-            $repository->getUserService()->loadUserByCredentials( "admin", "admin" )
-        );
+        // get the services from the repsitory
+        $contentTypeService = $repository->getContentTypeService();
+        $userService = $repository->getUserService();
+
+        // load the admin user and set it has current user in the repository
+        $user = $userService->loadUser( 14 );
+        $repository->setCurrentUser( $user );
 
         try
         {
-            // instanciate a create struct
-            $groupCreate = $this->contentTypeService->newContentTypeGroupCreateStruct(
-                $input->getArgument( 'content_type_group_identifier' )
-            );
-            // call service method
+            // instanciate a create struct and create the group
+            $contentTypeGroupCreateStruct = $contentTypeService->newContentTypeGroupCreateStruct( $contentTypeGroupIdentifier );
             $contentTypeGroup =  $this->contentTypeService->createContentTypeGroup( $groupCreate );
+
             // print out the group
             print_r( $contentTypeGroup );
         }

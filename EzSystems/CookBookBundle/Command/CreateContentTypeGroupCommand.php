@@ -61,7 +61,7 @@ class CreateContentTypeGroupCommand extends ContainerAwareCommand
         {
             // instanciate a create struct and create the group
             $contentTypeGroupCreateStruct = $contentTypeService->newContentTypeGroupCreateStruct( $contentTypeGroupIdentifier );
-            $contentTypeGroup =  $this->contentTypeService->createContentTypeGroup( $groupCreate );
+            $contentTypeGroup =  $contentTypeService->createContentTypeGroup( $contentTypeGroupCreateStruct );
 
             // print out the group
             print_r( $contentTypeGroup );

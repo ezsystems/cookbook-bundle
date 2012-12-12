@@ -6,5 +6,5 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class EzSystemsCookbookBundle extends Bundle
 {
-    protected $name = 'eZCookbookBundle';
+    protected $name = 'EzSystemsCookbookBundle';
 }

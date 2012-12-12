@@ -1,6 +1,6 @@
 <?php
 
-namespace EzSystems\CookBookBundle\DependencyInjection;
+namespace EzSystems\CookbookBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;

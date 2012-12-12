@@ -27,7 +27,7 @@ class SubtreeCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:subtree' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:subtree' )->setDefinition(
             array(
                 new InputArgument( 'operation', InputArgument::REQUIRED, 'copy or move' ),
                 new InputArgument( 'srcLocationId', InputArgument::REQUIRED, 'An existing location id' ),

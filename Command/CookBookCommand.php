@@ -21,7 +21,7 @@ class CookBookCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:myfistcommand' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:myfistcommand' )->setDefinition(
             array(
                 new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' )
             )

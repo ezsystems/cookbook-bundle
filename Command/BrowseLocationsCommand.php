@@ -38,7 +38,7 @@ class BrowseLocationsCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:browseLocations' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:browseLocations' )->setDefinition(
             array(
                 new InputArgument( 'locationId', InputArgument::REQUIRED, 'An existing location id' )
             )

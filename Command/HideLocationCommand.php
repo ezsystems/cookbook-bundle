@@ -27,7 +27,7 @@ class HideLocationCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:addlocation' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:addlocation' )->setDefinition(
             array(
                 new InputArgument( 'locationId', InputArgument::REQUIRED, 'An existing location id' ),
             )

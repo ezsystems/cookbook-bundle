@@ -27,7 +27,7 @@ class DeleteSubtree extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:deletesubtree' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:deletesubtree' )->setDefinition(
             array(
                 new InputArgument( 'locationId', InputArgument::REQUIRED, 'An existing location id' )
             )

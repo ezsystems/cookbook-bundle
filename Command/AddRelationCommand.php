@@ -26,7 +26,7 @@ class AddRelationCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:addrelation' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:addrelation' )->setDefinition(
             array(
                 new InputArgument( 'srcContentId' , InputArgument::REQUIRED, 'the source content'),
                 new InputArgument( 'destContentId' , InputArgument::REQUIRED, 'the destination content'),

@@ -27,7 +27,7 @@ class AddLocationToContentCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:addlocation' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:addlocation' )->setDefinition(
             array(
                 new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' ),
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),

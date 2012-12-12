@@ -28,7 +28,7 @@ class CreateContentCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:createcontent' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:createcontent' )->setDefinition(
             array(
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),
                 new InputArgument( 'contentType', InputArgument::REQUIRED, 'An existing content type identifier - the content type must contain a title field and a body field' ),

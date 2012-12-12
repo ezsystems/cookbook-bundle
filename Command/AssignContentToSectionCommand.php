@@ -27,7 +27,7 @@ class AssignContentToSectionCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:assignsection' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:assignsection' )->setDefinition(
             array(
                 new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' ),
                 new InputArgument( 'sectionId', InputArgument::REQUIRED, 'An existing section id' ),

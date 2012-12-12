@@ -27,7 +27,7 @@ class CreateContentTypeGroupCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:createcontenttypegroup' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:createcontenttypegroup' )->setDefinition(
             array(
                 new InputArgument( 'content_type_group_identifier', InputArgument::REQUIRED, 'a content type group identifier' ),
             )

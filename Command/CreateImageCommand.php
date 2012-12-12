@@ -22,7 +22,7 @@ class CreateImageCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:createimage' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:createimage' )->setDefinition(
             array(
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),
                 new InputArgument( 'name' , InputArgument::REQUIRED, 'the name of the image'),

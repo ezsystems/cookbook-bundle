@@ -26,7 +26,7 @@ class CopyContentCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:copycontent' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:copycontent' )->setDefinition(
             array(
                 new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' ),
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),

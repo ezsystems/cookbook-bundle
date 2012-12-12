@@ -28,7 +28,7 @@ class ViewContentMetaDataCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:viewcontentmetadata' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:viewcontentmetadata' )->setDefinition(
                 array(
                         new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' )
                 )

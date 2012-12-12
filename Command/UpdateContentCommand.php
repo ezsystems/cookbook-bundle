@@ -26,7 +26,7 @@ class UpdateContentCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:updatecontent' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:updatecontent' )->setDefinition(
             array(
                 new InputArgument( 'contentId' , InputArgument::REQUIRED, 'the content to be updated'),
                 new InputArgument( 'newtitle' , InputArgument::REQUIRED, 'the new title of the content'),

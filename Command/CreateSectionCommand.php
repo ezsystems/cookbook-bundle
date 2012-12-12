@@ -23,7 +23,7 @@ class CreateSectionCommand {
 
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:createsection' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:createsection' )->setDefinition(
         array(
             new InputArgument( 'section_identifier', InputArgument::REQUIRED, 'a section identifier' ),
             new InputArgument( 'section_name', InputArgument::REQUIRED, 'a section name' )

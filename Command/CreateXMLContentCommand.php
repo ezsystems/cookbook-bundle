@@ -21,7 +21,7 @@ class CreateXMLContentCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:createxmltext' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:createxmltext' )->setDefinition(
             array(
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),
                 new InputArgument( 'name' , InputArgument::REQUIRED, 'the name of the folder' ),

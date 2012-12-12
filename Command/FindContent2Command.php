@@ -30,7 +30,7 @@ class FindContent2Command extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezp_cookbook:find2' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:find2' )->setDefinition(
             array(
                 new InputArgument( 'text', InputArgument::REQUIRED, 'text to search in title field' ),
                 new InputArgument( 'contentTypeId', InputArgument::REQUIRED, 'content type id' ),

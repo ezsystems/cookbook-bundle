@@ -8,18 +8,15 @@
  */
 namespace EzSystems\CookbookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
- * With this command content can be viewd.
- * For a given content id there is an iteration over the field definitions
- * and the field values are shown.
- *
- * @author christianbacher
+ * This command loads a Content using its numerical identifier, iterates over the Content's Fields, and shows the value
+ * of each of them.
  */
 class ViewContentCommand extends ContainerAwareCommand
 {
@@ -42,41 +39,36 @@ class ViewContentCommand extends ContainerAwareCommand
      */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch the input argument
         $contentId = $input->getArgument( 'contentId' );
 
-        // get the repository from the di container
-        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
+        // Initialize the repository and the required services
 
-        // get the services from the repsitory
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
+        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
         $contentService = $repository->getContentService();
         $fieldTypeService = $repository->getFieldTypeService();
 
         try
         {
-            // iterate over the field definitions of the content type and print out the identifier and value
             $content = $contentService->loadContent( $contentId );
-            $contentType = $content->contentType;
-            foreach( $contentType->fieldDefinitions as $fieldDefinition )
-            {
-                if( $fieldDefinition->fieldTypeIdentifier == 'ezpage' ) continue; // ignore ezpage
-                $output->write( $fieldDefinition->identifier . ": " );
 
+            // Iterate over the field definitions of the content type, and print identifier: value
+            foreach ( $content->contentType->fieldDefinitions as $fieldDefinition )
+            {
+                $output->writeln( "<info>" . $fieldDefinition->identifier . "</info>" );
                 $fieldType = $fieldTypeService->getFieldType( $fieldDefinition->fieldTypeIdentifier );
                 $field = $content->getField( $fieldDefinition->identifier );
-                $valueHash = $fieldType->toHash( $field->value ); // use toHash for getting a readable output
+                $valueHash = $fieldType->toHash( $field->value );
                 $output->writeln( $valueHash );
             }
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
+        catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // if the id is not found
-            $output->writeln( "No content with id $contentId" );
+            $output->writeln( "<error>No content with id $contentId found</error>" );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
+        catch ( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
         {
-            // not allowed to read this content
-            $output->writeln( "Anonymous users are not allowed to read content with id $contentId" );
+            $output->writeln( "<error>Permission denied on content with id $contentId</error>" );
         }
     }
 }

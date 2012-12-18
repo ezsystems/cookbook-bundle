@@ -8,70 +8,53 @@
  */
 namespace EzSystems\CookbookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * This command adds a relation from a content source to a content destination.
- *
- * @author christianbacher
  */
 class AddRelationCommand extends ContainerAwareCommand
 {
-    /**
-     * This method override configures on input argument for the content id
-     */
     protected function configure()
     {
-        $this->setName( 'ezpublish:cookbook:addrelation' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:add_relation' )->setDefinition(
             array(
-                new InputArgument( 'srcContentId' , InputArgument::REQUIRED, 'the source content'),
-                new InputArgument( 'destContentId' , InputArgument::REQUIRED, 'the destination content'),
+                new InputArgument( 'source', InputArgument::REQUIRED, 'Content ID to create relation from' ),
+                new InputArgument( 'destination', InputArgument::REQUIRED, 'Content ID to create relation to' ),
             )
         );
     }
 
-    /**
-     * execute the command
-     *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch the input arguments
-        $srcContentId = $input->getArgument( 'srcContentId' );
-        $destContentId = $input->getArgument( 'destContentId' );
-
-        // get the repository from the di container
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
-
-        // get the services from the repsitory
         $contentService = $repository->getContentService();
-        $userService = $repository->getUserService();
 
-        // load the admin user and set it has current user in the repository
-        $user = $userService->loadUser( 14 );
-        $repository->setCurrentUser( $user );
+        // load the admin user and set it as current user in the repository
+        $repository->setCurrentUser( $userService = $repository->getUserService()->loadUser( 14 ) );
+
+        // fetch the input arguments
+        $sourceContentId = $input->getArgument( 'source' );
+        $destinationContentId = $input->getArgument( 'destination' );
 
         try
         {
-            // for the given content ids load the corresponding content infos
-            $srcContentInfo = $contentService->loadContentInfo( $srcContentId );
-            $destContentInfo = $contentService->loadContentInfo( $destContentId );
+            // for the given content ids, load content info
+            $sourceContentInfo = $contentService->loadContentInfo( $sourceContentId );
+            $destinationContentInfo = $contentService->loadContentInfo( $destinationContentId );
 
-            // create a draft from the current published version of the source and
-            // add a relation to the draft. Then publihh the draft.
-            $contentDraft = $contentService->createContentDraft( $srcContentInfo );
-            $contentService->addRelation( $contentDraft->versionInfo, $destContentInfo );
+            $contentDraft = $contentService->createContentDraft( $sourceContentInfo );
+            $contentService->addRelation( $contentDraft->versionInfo, $destinationContentInfo );
             $content = $contentService->publishVersion( $contentDraft->versionInfo );
 
-            print_r( $content ); // prints out the resulting content
+            print_r( $content );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
+        catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
             // react on content not found
             $output->writeln( $e->getMessage() );

@@ -12,32 +12,18 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
     Symfony\Component\Console\Input\InputInterface,
     Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    eZ\Publish\API\Repository\Values\Content\Section;
+    Symfony\Component\Console\Input\InputOption;
 
 /**
- * This commands walks through a subtree and prints out the content names.
- *
- * @author christianbacher
+ * This commands lists sections from the system, with ID, name and identifier
  */
 class ListSectionsCommand extends ContainerAwareCommand
 {
-    /**
-     * This method override configures on input argument for the content id
-     */
     protected function configure()
     {
         $this->setName( 'ezpublish:cookbook:list_sections' );
     }
 
-    /**
-     * Executes the command
-     *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return int|null|void
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
         /** @var $repository \eZ\Publish\API\Repository\Repository */
@@ -47,7 +33,7 @@ class ListSectionsCommand extends ContainerAwareCommand
 
         try
         {
-            /** @var $section Section */
+            /** @var $section \eZ\Publish\API\Repository\Values\Content\Section */
             foreach ( $sectionService->loadSections() as $section )
             {
                 $output->writeln( "Section #{$section->id}: {$section->name} [$section->identifier]" );

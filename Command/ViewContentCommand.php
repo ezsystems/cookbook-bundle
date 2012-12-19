@@ -20,33 +20,23 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class ViewContentCommand extends ContainerAwareCommand
 {
-    /**
-     * This method override configures on input argument for the content id
-     */
     protected function configure()
     {
-        $this->setName( 'ezpublish:cookbook:viewcontent' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:view_content' )->setDefinition(
             array(
                 new InputArgument( 'contentId', InputArgument::REQUIRED, 'An existing content id' )
             )
         );
     }
 
-    /**
-     * execute the command
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        $contentId = $input->getArgument( 'contentId' );
-
-        // Initialize the repository and the required services
-
         /** @var $repository \eZ\Publish\API\Repository\Repository */
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
         $contentService = $repository->getContentService();
         $fieldTypeService = $repository->getFieldTypeService();
+
+        $contentId = $input->getArgument( 'contentId' );
 
         try
         {

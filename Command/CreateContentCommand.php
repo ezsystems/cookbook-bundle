@@ -26,8 +26,9 @@ class CreateContentCommand extends ContainerAwareCommand
             array(
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location ID' ),
                 new InputArgument( 'contentType', InputArgument::REQUIRED, 'An existing content type identifier - the content type must contain a title field and a body field' ),
-                new InputArgument( 'title', InputArgument::REQUIRED, 'the title of the content' ),
-                new InputArgument( 'body', InputArgument::REQUIRED, 'the body of the content' )
+                new InputArgument( 'title', InputArgument::REQUIRED, 'Content for the Title field' ),
+                new InputArgument( 'intro', InputArgument::REQUIRED, 'Content for the Intro field' ),
+                new InputArgument( 'body', InputArgument::REQUIRED, 'Content for the Body field' ),
             )
         );
     }
@@ -40,19 +41,21 @@ class CreateContentCommand extends ContainerAwareCommand
         $locationService = $repository->getLocationService();
         $contentTypeService = $repository->getContentTypeService();
 
+        $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
+
         // fetch the input arguments
         $parentLocationId = $input->getArgument( 'parentLocationId' );
         $contentTypeIdentifier = $input->getArgument( 'contentType' );
         $title = $input->getArgument( 'title' );
+        $intro = $input->getArgument( 'intro' );
         $body = $input->getArgument( 'body' );
-
-        $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
 
         try
         {
             $contentType = $contentTypeService->loadContentTypeByIdentifier( $contentTypeIdentifier );
             $contentCreateStruct = $contentService->newContentCreateStruct( $contentType, 'eng-GB' );
             $contentCreateStruct->setField( 'title', $title );
+            $contentCreateStruct->setField( 'intro', $intro );
             $contentCreateStruct->setField( 'body', $body );
 
             // instantiate a location create struct from the parent location

@@ -14,82 +14,74 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
     Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputOption;
 
-class CreateXMLContentCommand extends ContainerAwareCommand
+class CreateXmlContentCommand extends ContainerAwareCommand
 {
-    /**
-     * This method overrides configure
-     */
     protected function configure()
     {
-        $this->setName( 'ezpublish:cookbook:createxmltext' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:create_xmltext' )->setDefinition(
             array(
                 new InputArgument( 'parentLocationId', InputArgument::REQUIRED, 'An existing parent location (node) id' ),
-                new InputArgument( 'name' , InputArgument::REQUIRED, 'the name of the folder' ),
-                new InputArgument( 'imageid' , InputArgument::REQUIRED, 'an id of an image content object' )
+                new InputArgument( 'name', InputArgument::REQUIRED, 'the name of the folder' ),
+                new InputArgument( 'imageId', InputArgument::REQUIRED, 'an id of an image content object' )
             )
         );
     }
 
-    /**
-     * execute the command
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
+        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
+        $contentService = $repository->getContentService();
+        $locationService = $repository->getLocationService();
+        $contentTypeService = $repository->getContentTypeService();
+
+        $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
+
         // fetch the input arguments
         $parentLocationId = $input->getArgument( 'parentLocationId' );
         $name = $input->getArgument( 'name' );
-        $imageId = $input->getArgument( 'imageid' );
-
-        // get the repository from the di container
-        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
-
-        // get the services from the repsitory
-        $contentService = $repository->getContentService();
-        $locationService = $repository->getLocationService();
-        $userService = $repository->getUserService();
-        $contentTypeService = $repository->getContentTypeService();
-
-        // load the admin user and set it has current user in the repository
-        $user = $userService->loadUser( 14 );
-        $repository->setCurrentUser( $user );
+        $imageId = $input->getArgument( 'imageId' );
 
         try
         {
-            // load a folder content type and instanciate a content creation struct
+            // load a folder content type and instantiate a content creation struct
             $contentType = $contentTypeService->loadContentTypeByIdentifier( "folder" );
             $contentCreateStruct = $contentService->newContentCreateStruct( $contentType, "eng-GB" );
 
-            $contentCreateStruct->setField( "name", $name ); // set name of the folder
-            $xmltext = "<?xml version='1.0' encoding='utf-8'?><section><paragraph>This is a <strong>image test</strong></paragraph>
-                        <paragraph><embed view='embed' size='medium' object_id='$imageId'/></paragraph></section>";
-            $contentCreateStruct->setField( "description", $xmltext ); // set description of the folder
+            $contentCreateStruct->setField( "name", $name );
+            $xmlText = <<< EOX
+<?xml version='1.0' encoding='utf-8'?>
+<section>
+    <paragraph>This is a <strong>image test</strong></paragraph>
+    <paragraph><embed view='embed' size='medium' object_id='$imageId'/></paragraph>
+</section>
+EOX;
+            $contentCreateStruct->setField( "description", $xmlText );
 
-            // instanciate a location create struct and create and publsidh the content
+            // instantiate a location create struct and create and publsidh the content
             $locationCreateStruct = $locationService->newLocationCreateStruct( $parentLocationId );
             $draft = $contentService->createContent( $contentCreateStruct, array( $locationCreateStruct ) );
             $content = $contentService->publishVersion( $draft->versionInfo );
             print_r( $content );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
+        // ContentType or Location not found
+        catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on content type or location not found
             $output->writeln( $e->getMessage() );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\InvalidArgumentException $e )
+        // Remote ID exists already
+        catch ( \eZ\Publish\API\Repository\Exceptions\InvalidArgumentException $e )
         {
-            // react on remote id exists already
             $output->writeln( $e->getMessage() );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\ContentFieldValidationException $e )
+        // Invalid field
+        catch ( \eZ\Publish\API\Repository\Exceptions\ContentFieldValidationException $e )
         {
-            // react on a field is not valid
             $output->writeln( $e->getMessage() );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\ContentValidationException $e )
+        // Missing required field, or invalid value
+        catch ( \eZ\Publish\API\Repository\Exceptions\ContentValidationException $e )
         {
-            // react on a required field is missing or empty
             $output->writeln( $e->getMessage() );
         }
     }

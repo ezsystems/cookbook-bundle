@@ -34,44 +34,35 @@ class HideLocationCommand extends ContainerAwareCommand
         );
     }
 
-    /**
-     * Executes the command
-     *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
+        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
+        $contentService = $repository->getContentService();
+        $locationService = $repository->getLocationService();
+
+        $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
+
         // fetch the location argument
         $locationId = $input->getArgument( 'locationId' );
 
-        // get the repository from the di container
-        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
-
-        // get the services from the repsitory
-        $locationService = $repository->getLocationService();
-        $userService = $repository->getUserService();
-
-        // load the admin user and set it has current user in the repository
-        $user = $userService->loadUser( 14 );
-        $repository->setCurrentUser( $user );
-
         try
         {
-            // hide the location and print out
-            $location = $contentService->loadContentInfo( $contentId );
+            $location = $contentService->loadContentInfo( $locationId );
+
             $hiddenLocation = $locationService->hideLocation( $location );
+            $output->writeln( "<info>Location after hide:</info>" );
             print_r( $hiddenLocation );
 
-            // unhide the now hidden location and print out
+            // unhide the now hidden location
             $unhiddenLocation = $locationService->unhideLocation( $hiddenLocation );
+            $output->writeln( "\n<info>Location after unhide:</info>" );
             print_r( $unhiddenLocation );
 
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
+        catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on location not found
-            $output->writeln( "No location with id $locationId" );
+            $output->writeln( "No location found with id $locationId" );
         }
     }
 }

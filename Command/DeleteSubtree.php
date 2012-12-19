@@ -8,62 +8,41 @@
  */
 namespace EzSystems\CookbookBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
-    Symfony\Component\Console\Input\InputInterface,
-    Symfony\Component\Console\Output\OutputInterface,
-    Symfony\Component\Console\Input\InputArgument,
-    Symfony\Component\Console\Input\InputOption,
-    eZ\Publish\API\Repository\Values\Content\Location;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
-/**
- * With this command a subtree can be deleted
- *
- * @author christianbacher
- */
 class DeleteSubtree extends ContainerAwareCommand
 {
-    /**
-     * This method override configures on input argument for the content id
-     */
     protected function configure()
     {
-        $this->setName( 'ezpublish:cookbook:deletesubtree' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:delete_subtree' )->setDefinition(
             array(
-                new InputArgument( 'locationId', InputArgument::REQUIRED, 'An existing location id' )
+                new InputArgument( 'location_id', InputArgument::REQUIRED, 'The subtree\'s root Location ID' )
             )
         );
     }
 
-    /**
-     * execute the command
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        // fetch the input argument
-        $locationId = $input->getArgument( 'locationId' );
-
-        // get the repository from the di container
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
-
-        // get the services from the repsitory
         $locationService = $repository->getLocationService();
-        $userService = $repository->getUserService();
 
-        // load the admin user and set it has current user in the repository
-        $user = $userService->loadUser( 14 );
-        $repository->setCurrentUser( $user );
+        $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
+
+        $locationId = $input->getArgument( 'location_id' );
 
         try
         {
-            // load the location from the given id and delete it (permanently)
-            $location = $locationService->loadLocation( $locationId );
+            // We first try to load the location so that a NotFoundException is thrown if the Location doesn't exist
+            $locationService->loadLocation( $locationId );
             $locationService->deleteLocation( $locationId );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
+        catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on location not found
             $output->writeln( "No location with id $locationId" );
         }
     }

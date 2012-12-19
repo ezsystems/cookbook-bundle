@@ -30,50 +30,41 @@ class FindContent2Command extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setName( 'ezpublish:cookbook:find2' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:find_advanced' )->setDefinition(
             array(
-                new InputArgument( 'text', InputArgument::REQUIRED, 'text to search in title field' ),
-                new InputArgument( 'contentTypeId', InputArgument::REQUIRED, 'content type id' ),
-                new InputArgument( 'locationId', InputArgument::REQUIRED, 'location id' ),
+                new InputArgument( 'text', InputArgument::REQUIRED, 'Text to search for in title field' ),
+                new InputArgument( 'contentTypeId', InputArgument::REQUIRED, 'Content type id' ),
+                new InputArgument( 'locationId', InputArgument::REQUIRED, 'Subtree id' ),
             )
         );
     }
 
-    /**
-     * execute the command
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
-        //fetch the input arguments
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
+        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
+        $searchService = $repository->getSearchService();
+        $locationService = $repository->getLocationService();
+
         $text = $input->getArgument( 'text' );
         $contentTypeId = $input->getArgument( 'contentTypeId' );
         $locationId = $input->getArgument( 'locationId' );
 
-        // get the repository from the di container
-        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
-
-        // get the services from the repsitory
-        $searchService = $repository->getSearchService();
-        $locationService = $repository->getLocationService();
-
-        // create the query with three critions and print out the result
+        // create the query with three criteria
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
         $criterion1 = new Criterion\FullText( $text );
-        $location = $locationService->loadLocation( $locationId );
-        $criterion2 = new Criterion\Subtree( $location->pathString ); // restrict results to belong to the given subtree
-        $criterion3 = new Criterion\ContentTypeId( $contentTypeId ); // restrict to the given content type
+        $criterion2 = new Criterion\Subtree( $locationService->loadLocation( $locationId )->pathString );
+        $criterion3 = new Criterion\ContentTypeId( $contentTypeId );
 
         $query->criterion = new Criterion\LogicalAND(
-                array( $criterion1, $criterion2, $criterion3 )
+            array( $criterion1, $criterion2, $criterion3 )
         );
 
         $result = $searchService->findContent( $query );
-        $output->writeln( 'Found ' . $result->totalCount . ' items' );
-        foreach( $result->searchHits as $searchHit )
+        $output->writeln( '<info>Found ' . $result->totalCount . ' items</info>' );
+        foreach ( $result->searchHits as $searchHit )
         {
-            $output->writeln( $searchHit->valueObject->contentInfo->name );
+            $output->writeln( "* " . $searchHit->valueObject->contentInfo->name );
         }
     }
 }

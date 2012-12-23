@@ -54,7 +54,7 @@ class BrowseLocationsCommand extends ContainerAwareCommand
     private function browseLocation( Location $location, OutputInterface $output, $depth = 0 )
     {
         // indent according to depth and write out the name of the content
-        $output->write( str_pad( '', $depth ) );
+        $output->write( str_pad( ' ', $depth ) );
         $output->writeln( $location->contentInfo->name );
 
         // we request the location's children using the location service, and call browseLocation on each
@@ -83,12 +83,10 @@ class BrowseLocationsCommand extends ContainerAwareCommand
         }
         catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on location was not found
             $output->writeln( "<error>No location found with id $locationId</error>" );
         }
         catch( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
         {
-            // react on permission denied
             $output->writeln( "<error>Anonymous users are not allowed to read location with id $locationId</error>" );
         }
     }

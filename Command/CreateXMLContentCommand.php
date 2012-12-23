@@ -49,14 +49,14 @@ class CreateXmlContentCommand extends ContainerAwareCommand
             $contentCreateStruct = $contentService->newContentCreateStruct( $contentType, "eng-GB" );
 
             $contentCreateStruct->setField( "name", $name );
-            $xmlText = <<< EOX
+$xmlText = <<< EOX
 <?xml version='1.0' encoding='utf-8'?>
 <section>
-    <paragraph>This is a <strong>image test</strong></paragraph>
-    <paragraph><embed view='embed' size='medium' object_id='$imageId'/></paragraph>
+<paragraph>This is a <strong>image test</strong></paragraph>
+<paragraph><embed view='embed' size='medium' object_id='$imageId'/></paragraph>
 </section>
 EOX;
-            $contentCreateStruct->setField( "description", $xmlText );
+$contentCreateStruct->setField( "description", $xmlText );
 
             // instantiate a location create struct and create and publsidh the content
             $locationCreateStruct = $locationService->newLocationCreateStruct( $parentLocationId );

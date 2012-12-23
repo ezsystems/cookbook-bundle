@@ -13,7 +13,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use eZ\Publish\API\Repository\Values\Content\Query;
 
 /**
  * This command performs a simple full text search
@@ -39,7 +38,7 @@ class FindContentCommand extends ContainerAwareCommand
 
         $text = $input->getArgument( 'text' );
 
-        $query = new Query();
+        $query = new \eZ\Publish\API\Repository\Values\Content\Query();
         $query->criterion = new Query\Criterion\FullText( $text );
 
         $result = $searchService->findContent( $query );

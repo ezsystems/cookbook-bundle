@@ -22,14 +22,11 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
  */
 class HideLocationCommand extends ContainerAwareCommand
 {
-    /**
-     * This method override configures on input argument for the content id
-     */
     protected function configure()
     {
-        $this->setName( 'ezpublish:cookbook:addlocation' )->setDefinition(
+        $this->setName( 'ezpublish:cookbook:add_location' )->setDefinition(
             array(
-                new InputArgument( 'locationId', InputArgument::REQUIRED, 'An existing location id' ),
+                new InputArgument( 'location_id', InputArgument::REQUIRED, 'An existing location id' ),
             )
         );
     }
@@ -44,7 +41,7 @@ class HideLocationCommand extends ContainerAwareCommand
         $repository->setCurrentUser( $repository->getUserService()->loadUser( 14 ) );
 
         // fetch the location argument
-        $locationId = $input->getArgument( 'locationId' );
+        $locationId = $input->getArgument( 'location_id' );
 
         try
         {

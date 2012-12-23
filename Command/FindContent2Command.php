@@ -13,7 +13,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
     Symfony\Component\Console\Output\OutputInterface,
     Symfony\Component\Console\Input\InputArgument,
     Symfony\Component\Console\Input\InputOption,
-    eZ\Publish\API\Repository\Values\Content\Query\Criterion\Operator,
     eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 
 
@@ -52,12 +51,11 @@ class FindContent2Command extends ContainerAwareCommand
 
         // create the query with three criteria
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
-        $criterion1 = new Criterion\FullText( $text );
-        $criterion2 = new Criterion\Subtree( $locationService->loadLocation( $locationId )->pathString );
-        $criterion3 = new Criterion\ContentTypeId( $contentTypeId );
+        $criterion1 = new Criterion\Subtree( $locationService->loadLocation( $locationId )->pathString );
+        $criterion2 = new Criterion\ContentTypeId( $contentTypeId );
 
-        $query->criterion = new Criterion\LogicalAND(
-            array( $criterion1, $criterion2, $criterion3 )
+        $query->criterion = new Criterion\LogicalAnd(
+            array( $criterion1, $criterion2 )
         );
 
         $result = $searchService->findContent( $query );

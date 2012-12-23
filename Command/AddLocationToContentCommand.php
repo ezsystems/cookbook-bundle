@@ -17,14 +17,9 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand,
 /**
  * This command adds a new location to a content object given by a content id. The location is created
  * below the given parent location.
- *
- * @author christianbacher
  */
 class AddLocationToContentCommand extends ContainerAwareCommand
 {
-    /**
-     * This method override configures on input argument for the content id
-     */
     protected function configure()
     {
         $this->setName( 'ezpublish:cookbook:addlocation' )->setDefinition(
@@ -35,51 +30,36 @@ class AddLocationToContentCommand extends ContainerAwareCommand
         );
     }
 
-    /**
-     * execute the command
-     *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     */
     protected function execute( InputInterface $input, OutputInterface $output )
     {
+        /** @var $repository \eZ\Publish\API\Repository\Repository */
+        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
+        $contentService = $repository->getContentService();
+        $locationService = $repository->getLocationService();
+
+        $repository->setCurrentUser( $userService = $repository->getUserService()->loadUser( 14 ) );
+
         // fetch the input arguments
         $parentLocationId = $input->getArgument( 'parentLocationId' );
         $contentId = $input->getArgument( 'contentId' );
 
-        // get the repository from the di container
-        $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
-
-        // get needed the services from the repsitory
-        $contentService = $repository->getContentService();
-        $locationService = $repository->getLocationService();
-        $userService = $repository->getUserService();
-
-        // load the admin user and set it has current user in the repository
-        $user = $userService->loadUser( 14 );
-        $repository->setCurrentUser( $user );
-
-
         try
         {
-            // add a location to the content by instaciating a location create struct
-            // from the parent location id and pass it
-            // to the createLocation method along with the content info
             $locationCreateStruct = $locationService->newLocationCreateStruct( $parentLocationId );
             $contentInfo = $contentService->loadContentInfo( $contentId );
             $newLocation = $locationService->createLocation( $contentInfo, $locationCreateStruct );
 
-            print_r($newLocation); // prints out the new location
+            print_r( $newLocation );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
+        // Content or location not found
+        catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {
-            // react on content or location not found
-            $output->writeln($e->getMessage());
+            $output->writeln( $e->getMessage() );
         }
-        catch( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
+        // Permission denied
+        catch ( \eZ\Publish\API\Repository\Exceptions\UnauthorizedException $e )
         {
-            // react on permission denied
-            $output->writeln($e->getMessage());
+            $output->writeln( $e->getMessage() );
         }
 
     }

@@ -89,11 +89,9 @@ class CreateContentTypeCommand extends ContainerAwareCommand
         $bodyFieldCreateStruct->isSearchable = true;
         $contentTypeCreateStruct->addFieldDefinition( $bodyFieldCreateStruct );
 
-        $groups = array( $contentTypeGroup );
-
         try
         {
-            $contentTypeDraft = $contentTypeService->createContentType( $contentTypeCreateStruct, $groups );
+            $contentTypeDraft = $contentTypeService->createContentType( $contentTypeCreateStruct, array( $contentTypeGroup ) );
             $contentTypeService->publishContentTypeDraft( $contentTypeDraft );
             $output->writeln( "<info>Content type created '$contentTypeIdentifier' with ID $contentTypeDraft->id" );
         }

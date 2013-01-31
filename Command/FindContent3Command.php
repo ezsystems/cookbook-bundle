@@ -18,7 +18,7 @@ use eZ\Publish\API\Repository\Values\Content\Query\Criterion;
 
 
 /**
- * This command performs a subtree and content type identifier filter search
+ * This command performs a location and content type identifier filter search
  */
 class FindContent3Command extends ContainerAwareCommand
 {
@@ -30,7 +30,7 @@ class FindContent3Command extends ContainerAwareCommand
         $this->setName( 'ezpublish:cookbook:find_filter' )->setDefinition(
             array(
                 new InputArgument( 'contentTypeIdentifier', InputArgument::REQUIRED, 'Content type identifier, one or several seperated by comma. example --contentTypeIdentifier=article,folder' ),
-                new InputArgument( 'locationId', InputArgument::REQUIRED, 'Subtree id' ),
+                new InputArgument( 'locationId', InputArgument::REQUIRED, 'Location id' ),
             )
         );
     }
@@ -40,7 +40,6 @@ class FindContent3Command extends ContainerAwareCommand
         /** @var $repository \eZ\Publish\API\Repository\Repository */
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
         $searchService = $repository->getSearchService();
-        $locationService = $repository->getLocationService();
 
         $text = $input->getArgument( 'text' );
         $contentTypeIdentifierList = explode( ',', $input->getArgument( 'contentTypeId' ) );
@@ -48,14 +47,14 @@ class FindContent3Command extends ContainerAwareCommand
 
         // create the query with subtree and a or condition of content type identifiers criteria
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
-        $subtreeCriterion = new Criterion\Subtree( $locationService->loadLocation( $locationId )->pathString );
+        $locationCriterion = new Criterion\LocationId( $locationId );
         $congtentTypeOr = new Criterion\LogicalOr( array() );
 
         foreach ( $contentTypeIdentifierList as $contentTypeIdentifier )
             $congtentTypeOr->criteria[] = new Criterion\ContentTypeIdentifier( $contentTypeIdentifier );
 
         $query->criterion = new Criterion\LogicalAnd(
-            array( $subtreeCriterion, $congtentTypeOr )
+            array( $locationCriterion, $congtentTypeOr )
         );
 
         $result = $searchService->findContent( $query );

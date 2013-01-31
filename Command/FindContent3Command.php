@@ -50,6 +50,7 @@ class FindContent3Command extends ContainerAwareCommand
         $locationCriterion = new Criterion\LocationId( $locationId );
         $congtentTypeOr = new Criterion\LogicalOr( array() );
 
+        // Note: ContentTypeIdentifier is available in eZ Publish 5.1+, use ContentTypeId instead to also support 5.0
         foreach ( $contentTypeIdentifierList as $contentTypeIdentifier )
             $congtentTypeOr->criteria[] = new Criterion\ContentTypeIdentifier( $contentTypeIdentifier );
 

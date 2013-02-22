@@ -45,9 +45,9 @@ class FindContent3Command extends ContainerAwareCommand
         $contentTypeIdentifierList = explode( ',', $input->getArgument( 'contentTypeId' ) );
         $locationId = $input->getArgument( 'locationId' );
 
-        // create the query with subtree and a or condition of content type identifiers criteria
+        // create the query with parent location id and a or condition of content type identifiers criteria
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
-        $locationCriterion = new Criterion\LocationId( $locationId );
+        $locationCriterion = new Criterion\ParentLocationId( $locationId );
         $congtentTypeOr = new Criterion\LogicalOr( array() );
 
         // Note: ContentTypeIdentifier is available in eZ Publish 5.1+, use ContentTypeId instead to also support 5.0

@@ -34,6 +34,7 @@ class ViewContentCommand extends ContainerAwareCommand
         /** @var $repository \eZ\Publish\API\Repository\Repository */
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
         $contentService = $repository->getContentService();
+        $contentTypeService = $repository->getContentTypeService();
         $fieldTypeService = $repository->getFieldTypeService();
 
         $contentId = $input->getArgument( 'contentId' );
@@ -41,9 +42,10 @@ class ViewContentCommand extends ContainerAwareCommand
         try
         {
             $content = $contentService->loadContent( $contentId );
+            $contentType = $contentTypeService->loadContentType( $content->contentInfo->contentTypeId );
 
             // Iterate over the field definitions of the content type, and print identifier: value
-            foreach ( $content->contentType->fieldDefinitions as $fieldDefinition )
+            foreach ( $contentType->fieldDefinitions as $fieldDefinition )
             {
                 $output->writeln( "<info>" . $fieldDefinition->identifier . "</info>" );
                 $fieldType = $fieldTypeService->getFieldType( $fieldDefinition->fieldTypeIdentifier );

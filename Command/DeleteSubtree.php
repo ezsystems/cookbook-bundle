@@ -38,8 +38,8 @@ class DeleteSubtree extends ContainerAwareCommand
         try
         {
             // We first try to load the location so that a NotFoundException is thrown if the Location doesn't exist
-            $locationService->loadLocation( $locationId );
-            $locationService->deleteLocation( $locationId );
+            $location = $locationService->loadLocation( $locationId );
+            $locationService->deleteLocation( $location );
         }
         catch ( \eZ\Publish\API\Repository\Exceptions\NotFoundException $e )
         {

@@ -31,6 +31,7 @@ class ViewContentMetaDataCommand extends ContainerAwareCommand
         /** @var $repository \eZ\Publish\API\Repository\Repository */
         $repository = $this->getContainer()->get( 'ezpublish.api.repository' );
         $contentService = $repository->getContentService();
+        $contentTypeService = $repository->getContentTypeService();
         $locationService = $repository->getLocationService();
         $urlAliasService = $repository->getURLAliasService();
         $sectionService = $repository->getSectionService();
@@ -43,6 +44,7 @@ class ViewContentMetaDataCommand extends ContainerAwareCommand
         try
         {
             $contentInfo = $contentService->loadContentInfo( $contentId );
+            $contentType = $contentTypeService->loadContentType( $contentInfo->contentTypeId );
 
             // show all locations of the content
             $locations = $locationService->loadLocations( $contentInfo );
@@ -69,7 +71,7 @@ class ViewContentMetaDataCommand extends ContainerAwareCommand
             // show meta data
             $output->writeln( "\n<info>METADATA</info>" );
             $output->writeln( "  <info>Name:</info> $contentInfo->name" );
-            $output->writeln( "  <info>Type:</info> " .$contentInfo->contentType->identifier );
+            $output->writeln( "  <info>Type:</info> " . $contentType->identifier );
             $output->writeln( "  <info>Last modified:</info> " . $contentInfo->modificationDate->format( 'Y-m-d' ) );
             $output->writeln( "  <info>Published:</info> ". $contentInfo->publishedDate->format( 'Y-m-d' ) );
             $output->writeln( "  <info>RemoteId:</info> $contentInfo->remoteId" );

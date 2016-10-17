@@ -39,7 +39,8 @@ class FindContentCommand extends ContainerAwareCommand
         $text = $input->getArgument( 'text' );
 
         $query = new \eZ\Publish\API\Repository\Values\Content\Query();
-        $query->criterion = new Query\Criterion\FullText( $text );
+        // Use 'query' over 'filter' to get hit score (relevancy) and default sorting by it with Solr/Elastic
+        $query->query = new Query\Criterion\FullText( $text );
 
         $result = $searchService->findContent( $query );
         $output->writeln( 'Found ' . $result->totalCount . ' items' );

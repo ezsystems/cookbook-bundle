@@ -54,7 +54,7 @@ class FindContent2Command extends ContainerAwareCommand
         $criterion1 = new Criterion\Subtree( $locationService->loadLocation( $locationId )->pathString );
         $criterion2 = new Criterion\ContentTypeId( $contentTypeId );
 
-        $query->criterion = new Criterion\LogicalAnd(
+        $query->filter = new Criterion\LogicalAnd(
             array( $criterion1, $criterion2 )
         );
 

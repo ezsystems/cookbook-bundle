@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class DeleteSubtree extends ContainerAwareCommand
+class DeleteSubtreeCommand extends ContainerAwareCommand
 {
     protected function configure()
     {

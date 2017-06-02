@@ -1,6 +1,6 @@
 <?php
 
-namespace EzSystems\CookBookBundle\DependencyInjection;
+namespace EzSystems\CookbookBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

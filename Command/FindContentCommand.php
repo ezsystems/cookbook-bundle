@@ -1,10 +1,10 @@
 <?php
+
 /**
  * File containing the FindContentCommand class.
  *
  * @copyright Copyright (C) eZ Systems AS. All rights reserved.
  * @license For full copyright and license information view LICENSE file distributed with this source code.
- * @version //autogentag//
  */
 namespace EzSystems\CookbookBundle\Command;
 
@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use eZ\Publish\API\Repository\Values\Content\Query;
 
 /**
  * This command performs a simple full text search
@@ -38,7 +38,7 @@ class FindContentCommand extends ContainerAwareCommand
 
         $text = $input->getArgument( 'text' );
 
-        $query = new \eZ\Publish\API\Repository\Values\Content\Query();
+        $query = new Query();
         // Use 'query' over 'filter' to get hit score (relevancy) and default sorting by it with Solr/Elastic
         $query->query = new Query\Criterion\FullText( $text );
 

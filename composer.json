@@ -1,0 +1,27 @@
+{
+    "name": "ezsystems/cookbook-bundle",
+    "description": "eZ Platform Bundle with ready to use code samples",
+    "homepage": "https://github.com/ezsystems/CookbookBundle",
+    "license": "GPL-2.0",
+    "type": "ezplatform-bundle",
+    "authors": [
+        {
+            "name": "eZ dev-team & eZ Community",
+            "homepage": "https://github.com/ezsystems/CookbookBundle/contributors"
+        }
+    ],
+    "require": {
+        "php": "^5.6|^7.0",
+        "ezsystems/ezpublish-kernel": "^6.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "EzSystems\\CookbookBundle\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}

@@ -19,19 +19,14 @@ Required tools:
 
     Follow the instructions that show up on the screen to have fully working clean install of eZ Platform.
 
-2. Clone (using git) `CookbookBundle` into your eZ Platform project:
+2. Install `CookbookBundle` using composer:
 
     ```bash
     # execute in your eZ Platform project working directory:
-    cd src
-    # this directory is needed to generate autoload conforming to PSR-0
-    mkdir EzSystems && cd EzSystems
-    # clone `CookbookBundle`
-    git clone git@github.com:ezsystems/CookbookBundle.git CookbookBundle
-    cd ../..
-    # dump composer autoloader
-    composer dump-autoload
+    composer require ezsystems/cookbook-bundle:^1.0@dev
     ```
+    
+    Follow the instructions that show up on the screen to have fully working clean install of `CookbookBundle`.
 
 3. Enable the bundle in `AppKernel.php`:
 
@@ -50,13 +45,13 @@ Required tools:
 4. Clear Symfony cache
 
     ```bash
-    php app/console cache:clear
+    php bin/console cache:clear
     ```
 
 5. Try already defined commands. You can find all available commands by:
 
    ```bash
-   php app/console |grep 'ezpublish:cookbook'
+   php bin/console |grep 'ezpublish:cookbook'
    ```
 
 That's all!

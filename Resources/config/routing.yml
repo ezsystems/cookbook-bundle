@@ -1,3 +1,0 @@
-ez_systems_cookbook_hello:
-    pattern:  /cookbook/hello/{name}
-    defaults: { _controller: EzSystemsCookbookBundle:Default:hello }
